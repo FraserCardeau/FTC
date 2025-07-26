@@ -1,0 +1,35 @@
+#By Project516
+name: Weekly Upstream Sync
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write  
+
+jobs:
+  sync-upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git user
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Fetch and update upstream branch
+        run: |
+          git remote add upstream https://github.com/Pedro-Pathing/Quickstart.git
+          git fetch upstream
+          git checkout -B upstream upstream/master
+
+      - name: Push upstream branch
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git push origin upstream --force
